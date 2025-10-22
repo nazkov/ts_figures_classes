@@ -1,5 +1,15 @@
-export type Shape = 'triangle' | 'circle' | 'rectangle';
-export type Color = 'red' | 'green' | 'blue';
+export enum Shape {
+  Triangle = 'triangle',
+  Circle = 'circle',
+  Rectangle = 'rectangle',
+}
+
+export enum Color {
+  Red = 'red',
+  Green = 'green',
+  Blue = 'blue',
+}
+
 export interface Figure {
   shape: Shape;
   color: Color;
@@ -7,7 +17,8 @@ export interface Figure {
 }
 
 export class Triangle implements Figure {
-  public shape: Shape = 'triangle';
+  shape = Shape.Triangle;
+
   constructor(
     public color: Color,
     public a: number,
@@ -15,46 +26,69 @@ export class Triangle implements Figure {
     public c: number,
   ) {
     if (a <= 0 || b <= 0 || c <= 0) {
-      throw new Error('Side cant be <= 0');
+      throw new Error(
+        `Triangle side lengths must be positive. Got: a=${a}, b=${b}, c=${c}.`,
+      );
     }
 
-    if (a + b <= c || a + c <= b || b + c <= a) {
-      throw new Error('Length of side cant be >= than two other');
+    const longest = Math.max(a, b, c);
+
+    if (longest >= a + b + c - longest) {
+      throw new Error(
+        `Invalid triangle sides: ${a}, ${b}, ${c}. They don't satisfy the triangle inequality.`,
+      );
     }
   }
 
   getArea(): number {
     const s = (this.a + this.b + this.c) / 2;
     const area = Math.sqrt(s * (s - this.a) * (s - this.b) * (s - this.c));
+
     return Math.floor(area * 100) / 100;
   }
 }
 
 export class Circle implements Figure {
-  public shape: Shape = 'circle';
+  shape = Shape.Circle;
+
   constructor(
     public color: Color,
     public radius: number,
-  ) {}
+  ) {
+    if (radius <= 0) {
+      throw new Error(`Radius must be a positive number. Got: ${radius}.`);
+    }
+  }
 
   getArea(): number {
-    return Math.floor(Math.PI * this.radius * this.radius * 100) / 100;
+    const area = Math.PI * this.radius ** 2;
+
+    return Math.floor(area * 100) / 100;
   }
 }
 
 export class Rectangle implements Figure {
-  public shape: Shape = 'rectangle';
+  shape = Shape.Rectangle;
+
   constructor(
     public color: Color,
-    public height: number,
     public width: number,
-  ) {}
+    public height: number,
+  ) {
+    if (width <= 0 || height <= 0) {
+      throw new Error(
+        `Rectangle dimensions must be positive. Got: width=${width}, height=${height}.`,
+      );
+    }
+  }
 
-  getArea() {
-    return Math.floor(this.height * this.width * 100) / 100;
+  getArea(): number {
+    const area = this.width * this.height;
+
+    return Math.floor(area * 100) / 100;
   }
 }
 
-export function getInfo(figure): string {
+export function getInfo(figure: Figure): string {
   return `A ${figure.color} ${figure.shape} - ${figure.getArea()}`;
 }
